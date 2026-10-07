@@ -1,5 +1,6 @@
 import "leaflet/dist/leaflet.css";
 import "./globals.css";
+import { themeInitScript } from "./lib/theme";
 
 export const metadata = {
   title: "ISS-Live-Tracker",
@@ -8,7 +9,11 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="de">
+    // data-theme wird vom Inline-Script vor der Hydrierung gesetzt.
+    <html lang="de" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+      </head>
       <body>{children}</body>
     </html>
   );

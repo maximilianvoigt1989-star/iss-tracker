@@ -3,6 +3,8 @@
 import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 import InfoBox from "./components/InfoBox";
+import SignalStatus from "./components/SignalStatus";
+import ThemeToggle from "./components/ThemeToggle";
 
 // Leaflet greift auf window zu – deshalb nur im Browser laden.
 const IssMap = dynamic(() => import("./components/IssMap"), {
@@ -55,9 +57,7 @@ export default function Home() {
       } catch (err) {
         if (cancelled) return;
         console.warn("ISS-Abruf fehlgeschlagen:", err);
-        setError(
-          "Die ISS-Daten können gerade nicht abgerufen werden. Neuer Versuch läuft automatisch …"
-        );
+        setError("Die ISS-Daten sind gerade nicht erreichbar. Neuer Versuch läuft automatisch.");
       } finally {
         clearTimeout(abortTimer);
         if (!cancelled) timeoutId = setTimeout(poll, POLL_INTERVAL_MS);
@@ -74,23 +74,35 @@ export default function Home() {
   }, []);
 
   return (
-    <main className="app">
-      <IssMap position={position} />
-
-      <InfoBox position={position} lastUpdated={lastUpdated} />
-
-      {error && (
-        <div className="banner banner-error" role="alert">
-          {error}
-          {position && " Angezeigt wird die letzte bekannte Position."}
+    <div className="app">
+      <header className="topbar">
+        <div className="brand">
+          <h1 className="brand-title">ISS • LIVE</h1>
+          <span className="brand-sub">NORAD 25544</span>
         </div>
-      )}
-
-      {!position && !error && (
-        <div className="banner banner-info" role="status">
-          ISS-Position wird geladen …
+        <div className="topbar-actions">
+          <SignalStatus error={error} lastUpdated={lastUpdated} />
+          <ThemeToggle />
         </div>
-      )}
-    </main>
+      </header>
+
+      <main className="map-area">
+        <IssMap position={position} />
+      </main>
+
+      <aside className="readout" aria-label="ISS-Daten">
+        <InfoBox position={position} />
+
+        {error && (
+          <div className="alert" role="alert">
+            <strong className="alert-title">KEIN SIGNAL</strong>
+            <p className="alert-text">
+              {error}
+              {position && " Angezeigt wird die letzte bekannte Position."}
+            </p>
+          </div>
+        )}
+      </aside>
+    </div>
   );
 }

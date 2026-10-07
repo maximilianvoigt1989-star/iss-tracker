@@ -6,33 +6,27 @@ const numberFormat = (digits) =>
 
 const coordFormat = numberFormat(4);
 const intFormat = numberFormat(0);
-const timeFormat = new Intl.DateTimeFormat("de-DE", {
-  hour: "2-digit",
-  minute: "2-digit",
-  second: "2-digit",
-});
 
-export default function InfoBox({ position, lastUpdated }) {
+export default function InfoBox({ position }) {
   const placeholder = "–";
   const rows = [
-    ["Breite", position ? `${coordFormat.format(position.latitude)}°` : placeholder],
-    ["Länge", position ? `${coordFormat.format(position.longitude)}°` : placeholder],
-    ["Höhe", position ? `${intFormat.format(position.altitude)} km` : placeholder],
-    ["Geschwindigkeit", position ? `${intFormat.format(position.velocity)} km/h` : placeholder],
-    ["Aktualisiert", lastUpdated ? `${timeFormat.format(lastUpdated)} Uhr` : placeholder],
+    ["Breite", position ? `${coordFormat.format(position.latitude)}°` : placeholder, null],
+    ["Länge", position ? `${coordFormat.format(position.longitude)}°` : placeholder, null],
+    ["Höhe", position ? intFormat.format(position.altitude) : placeholder, "km"],
+    ["Geschwindigkeit", position ? intFormat.format(position.velocity) : placeholder, "km/h"],
   ];
 
   return (
-    <aside className="infobox" aria-label="ISS-Daten">
-      <h1>ISS live</h1>
-      <dl>
-        {rows.map(([label, value]) => (
-          <div key={label} className="row">
-            <dt>{label}</dt>
-            <dd>{value}</dd>
-          </div>
-        ))}
-      </dl>
-    </aside>
+    <dl className="readout-list">
+      {rows.map(([label, value, unit]) => (
+        <div key={label} className="readout-row">
+          <dt className="readout-label">{label}</dt>
+          <dd className="readout-value">
+            {value}
+            {unit && position && <span className="readout-unit">{unit}</span>}
+          </dd>
+        </div>
+      ))}
+    </dl>
   );
 }
